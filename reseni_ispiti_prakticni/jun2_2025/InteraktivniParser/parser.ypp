@@ -1,0 +1,162 @@
+%{
+    #include <iostream>    
+    #include <cstdlib>
+    #include <string>
+    #include <algorithm>
+    #include <map>
+
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    unsigned long bin_u_dek(std::string s) {
+        if (s.empty())
+            return 0;
+        return std::stoul(s, nullptr, 2);
+    }
+
+    std::string dek_u_bin(unsigned long n) {
+        if (n == 0)
+            return "0";
+        std::string r = "";
+        while (n > 0) {
+            r += (n % 2 == 0 ? "0" : "1");
+            n = n / 2;
+        }
+        std::reverse(r.begin(), r.end());
+        return r;
+    }
+
+    std::map<std::string, std::string> promenljive;
+
+%}
+
+%union {
+    std::string *niska;
+}
+
+%token <niska> ID_T
+%token <niska> BINARNI_T
+%token PRINT_T
+%token SHL_T
+%token SHR_T
+%token BROJ_JEDINICA_T
+%token BROJ_NULA_T
+
+%right '?' ':'
+%left '|'
+%left '&'
+%left SHL_T SHR_T
+%right '~'
+%left '['
+
+%type <niska> izraz
+
+%%
+
+program: program naredba    {}
+| naredba   {}
+;
+
+naredba: ID_T '=' izraz ';'     {
+    promenljive[*$1] = *$3;
+    delete $1;
+    delete $3;
+}
+| PRINT_T '(' izraz ')' ';'     {
+    std::cout << *$3 << std::endl;
+    delete $3;
+}
+;
+
+izraz: BINARNI_T    {
+    $$ = $1;
+}
+| ID_T      {
+    auto it = promenljive.find(*$1);
+    if (it == promenljive.end())
+        yyerror("Promenljiva " + *$1 + " nije definisana!");
+    $$ = new std::string(promenljive[*$1]);
+    delete $1;
+}
+| izraz '?' izraz ':' izraz     {
+    if (bin_u_dek(*$1) != 0) {
+        $$ = new std::string(*$3);
+    } else {
+        $$ = new std::string(*$5);
+    }
+    delete $1;
+    delete $3;
+    delete $5;
+}
+| izraz '[' izraz ']'           {
+    std::string s = *$1;
+    unsigned long pozicija = bin_u_dek(*$3);
+    if (pozicija < s.length()) {
+        $$ = new std::string(1, s[s.length() - 1 - pozicija]);
+    } else {
+        $$ = new std::string("0");
+    }
+    delete $1;
+    delete $3;
+}
+| BROJ_JEDINICA_T '(' izraz ')'     {
+    int brojac = 0;
+    for (char c : *$3)
+        if (c == '1')
+            brojac++;
+    $$ = new std::string(dek_u_bin(brojac));
+    delete $3;
+}
+| BROJ_NULA_T '(' izraz ')'     {
+    int brojac = 0;
+    for (char c : *$3)
+        if (c == '0')
+            brojac++;
+    $$ = new std::string(dek_u_bin(brojac));
+    delete $3;
+}
+| izraz '&' izraz       {
+    $$ = new std::string(dek_u_bin(bin_u_dek(*$1) & bin_u_dek(*$3)));
+    delete $1;
+    delete $3;
+}
+| izraz '|' izraz       {
+    $$ = new std::string(dek_u_bin(bin_u_dek(*$1) | bin_u_dek(*$3)));
+    delete $1;
+    delete $3;
+}
+| '~' izraz             {
+    $$ = new std::string(dek_u_bin(~bin_u_dek(*$2)));
+    delete $2;
+} 
+| izraz SHL_T izraz     {
+    $$ = new std::string(dek_u_bin(bin_u_dek(*$1) << bin_u_dek(*$3)));
+    delete $1;
+    delete $3;
+}
+| izraz SHR_T izraz     {
+    $$ = new std::string(dek_u_bin(bin_u_dek(*$1) >> bin_u_dek(*$3)));
+    delete $1;
+    delete $3;
+}
+| '(' izraz ')'         {
+    $$ = $2;
+}
+;
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatiika" << std::endl;
+    } else {
+        std::cout << "Neispravna gramatika" << std::endl;
+    }
+
+    return 0;
+}

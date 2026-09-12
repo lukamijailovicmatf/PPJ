@@ -1,0 +1,16 @@
+List l1;				            // kreira se prazna lista []
+List l2 = [1, 2, 3, 4];		        // kreira se lista sa elementima [1, 2, 3, 4]
+List l3 = [1, 2, 3];                // kreira se lista sa elementima [1, 2, 3]
+l1 = [2, 3];					    // lista sa elementima [2, 3]
+
+print("ovo je neka niska");			// stampa se: ovo je neka niska
+print(l2);							// stampa se: [1, 2, 3, 4]
+print([4, 100, 6]);					// stampa se: [4, 100, 6]
+print([]);							// stampa se: []
+
+List l4 = l3 * 3;					// kreira se lista l4 = [1, 2, 3, 1, 2, 3, 1, 2, 3]
+print([1, 2] * 2);					// ispisuje se lista [1, 2, 1, 2]
+print(l1 * 2);						// ispisuje se lista [2, 3, 2, 3]
+
+List l5 = [1, 2, 3];				// kreira se lista l5 = [1, 2, 3]
+l5.append(4);						// trenutna lista l5 = [1, 2, 3, 4]

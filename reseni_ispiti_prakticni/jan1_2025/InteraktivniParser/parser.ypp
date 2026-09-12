@@ -1,0 +1,158 @@
+%{
+    #include <iostream>    
+    #include <cstdlib>
+    #include <string>
+    #include <map>
+
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+%}
+
+%code requires {
+    enum Logika {
+        F = 0,
+        T = 1,
+        U = 2
+    };
+}
+
+%union {
+    char id;
+    Logika l;
+}
+
+%{
+    std::map<char, Logika> tabela;
+
+    // Funkcije za trovalentnu logiku (Klinijeva logika)
+    Logika log_not(Logika a) {
+        if (a == T)
+            return F;
+        if (a == F)
+            return T;
+        return U;
+    }
+
+    Logika log_and(Logika a, Logika b) {
+        if (a == F || b == F)
+            return F;
+        if (a == T && b == T)
+            return T;
+        return U;
+    }
+
+    Logika log_or(Logika a, Logika b) {
+        if (a == T || b == T)
+            return T;
+        if (a == F && b == F)
+            return F;
+        return U;
+    }
+
+    Logika log_impl(Logika a, Logika b) {
+        return log_or(log_not(a), b);
+    }
+
+    Logika log_equiv(Logika a, Logika b) {
+        if (a == U || b == U)
+            return U;
+        if (a == b)
+            return T;
+        else
+            return F;
+    }
+
+    void ispisi(Logika l) {
+        if (l == T)
+            std::cout << "True" << std::endl;
+        else if (l == F)
+            std::cout << "False" << std::endl;
+        else
+            std::cout << "Undef" << std::endl;
+    }
+%}
+
+%left EQUIV_T
+%left IMPL_T
+%left OR_T
+%left AND_T
+%left NOT_T
+
+%token <id> ID_T
+%token AND_T
+%token OR_T
+%token EQUIV_T
+%token IMPL_T
+%token NOT_T
+%token DODELA_T
+%token FALSE_T
+%token TRUE_T
+%token UNDEF_T
+
+%type <l> izraz
+
+%%
+
+program: program linija     {}
+| linija    {}
+;
+
+linija: izraz       {
+    ispisi($1);
+}
+| ID_T DODELA_T izraz       {
+    tabela[$1] = $3;
+}
+;
+
+izraz: ID_T                     {
+    if (tabela.find($1) == tabela.end())
+        $$ = U;
+    else
+        $$ = tabela[$1];
+}
+| TRUE_T        {
+    $$ = T;
+}
+| FALSE_T       {
+    $$ = F;
+}
+| UNDEF_T       {
+    $$ = U;
+}
+| izraz AND_T izraz     {
+    $$ = log_and($1, $3);
+}
+| izraz OR_T izraz      {
+    $$ = log_or($1, $3);
+}
+| izraz EQUIV_T izraz       {
+    $$ = log_equiv($1, $3);
+}
+| izraz IMPL_T izraz        {
+    $$ = log_impl($1, $3);
+}
+| NOT_T izraz       {
+    $$ = log_not($2);
+}
+| '(' izraz ')'     {
+    $$ = $2;
+}
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatika" << std::endl;
+    } else {
+        std::cout << "Neispravna gramatika" << std::endl;
+    }
+
+    return 0;
+}

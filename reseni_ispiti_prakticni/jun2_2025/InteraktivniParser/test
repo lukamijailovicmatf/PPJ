@@ -1,0 +1,18 @@
+x = 100101;							        // dodela vrednosti promenljivoj x
+y = x;								        // jos jedan komentar						    
+print(y);						            // ispisuje na standardni izlaz: 100101
+print(z);							        // greska: promenljiva z nije definisana
+
+y = ~x & 111;
+print(110010 & (10111 | y));		        // 10010
+z = x >> 101;					            // pomeranje udesno za 5 mesta
+print((x | 10) << z);			            // 1001110
+
+jedinice = broj_jedinica(x);
+print(jedinice);						    // 11 (ima ih 3, sto je binarno 11)
+print(broj_jedinica(x) | broj_nula(y)); 	// 11111
+
+uslov = x | y;
+print(uslov ? broj_jedinica(x) : 1011);		// 11
+print(x[0]);								// 1
+print(x[11]);								// 0

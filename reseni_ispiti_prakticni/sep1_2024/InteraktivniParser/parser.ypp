@@ -1,0 +1,203 @@
+%{
+    #include <iostream>
+    #include <map>
+    #include "skup.hpp"
+    
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << "Sintaksna greska: " << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::map<std::string, Skup*> promenljive;
+    Skup *univ = nullptr;
+%}
+
+// unija
+%union {
+    int v;
+    std::string *s;
+    bool b;
+    Skup *sk;
+}
+
+// tokeni
+%token DEF_T
+%token PRINT_T
+%token UNIV_T
+%token <s> ID_T
+%token <v> BROJ_T
+%token PRESEK_T
+%token UNIJA_T
+%token RAZLIKA_T
+%token CPL_T
+%token IN_T
+%token SUB_T
+%token SIZE_T
+%token EQ_T
+%token NEQ_T
+
+// asocijativnost
+%left PRESEK_T
+%left UNIJA_T
+%left RAZLIKA_T
+%right CPL_T
+
+%type <sk> izraz
+%type <v> broj
+%type <b> logicka_naredba
+%type <sk> skup
+%type <sk> lista_brojeva
+
+%start program
+
+%%
+
+program : program naredba
+| naredba
+;
+
+naredba : DEF_T ID_T ';'        {
+    auto it = promenljive.find(*$2);
+    if (it != promenljive.end())
+        yyerror("Promenljiva je vec definisana.");
+    promenljive[*$2] = new Skup();
+    delete $2;
+}
+| DEF_T ID_T '=' izraz ';'      {
+    auto it = promenljive.find(*$2);
+    if (it != promenljive.end())
+        yyerror("Promenljiva je vec definisana.");
+    promenljive[*$2] = $4;
+    delete $2;
+}
+| PRINT_T '(' izraz ')' ';'     {
+    std::cout << (*$3) << std::endl;
+    delete $3;
+}
+| UNIV_T '=' '[' broj ',' broj ']' ';'      {
+    if (univ != nullptr) {
+        delete univ;
+    }
+    univ = new Skup($4, $6);
+}
+| ID_T '=' izraz ';'        {
+    auto it = promenljive.find(*$1);
+    if (it == promenljive.end())
+        yyerror("Promenljiva nije definisana.");
+    delete it->second;
+    it->second = $3;
+    delete $1;
+}
+| logicka_naredba ';'       {
+    if ($1) {
+        std::cout << "True" << std::endl;
+    } else {
+        std::cout << "False" << std::endl;
+    }
+}
+;
+
+logicka_naredba: izraz EQ_T izraz       {
+    $$ = (*$1 == *$3);
+    delete $1;
+    delete $3;
+}
+| izraz NEQ_T izraz     {
+    $$ = (*$1 != *$3);
+    delete $1;
+    delete $3;
+}
+| izraz SUB_T izraz     {
+    $$ = $3->Sadrzi(*$1);
+    delete $1;
+    delete $3;
+}
+| broj IN_T izraz       {
+    $$ = $3->Sadrzi($1);
+    delete $3;
+}
+;
+
+izraz : izraz PRESEK_T izraz        {
+    $$ = *$1 * *$3;
+    delete $1;
+    delete $3;
+}
+| izraz UNIJA_T izraz       {
+    $$ = *$1 + *$3;
+    delete $1;
+    delete $3;
+}
+| izraz RAZLIKA_T izraz     {
+    $$ = *$1 - *$3;
+    delete $1;
+    delete $3;
+}
+| CPL_T izraz       {
+    if (univ == nullptr)
+        $$ = new Skup();
+    else
+        $$ = *univ - *$2;
+    delete $2;
+}
+| '(' izraz ')'     {
+    $$ = $2;
+}
+| skup      {
+    $$ = $1;
+}
+| ID_T      {
+    auto it = promenljive.find(*$1);
+    if (it == promenljive.end())
+        yyerror("Promenljiva nije pronadjena.");
+    $$ = new Skup(*(it->second));
+    delete $1;
+}
+| UNIV_T        {
+    if (univ == nullptr)
+        $$ = new Skup();
+    else
+        $$ = new Skup(*univ);
+}
+;
+
+// skup je tipa Skup*
+// lista_brojeva je tipa Skup*
+skup : '{' lista_brojeva '}'    {
+    $$ = $2;
+}
+;
+
+lista_brojeva : lista_brojeva ',' broj      {
+    $1->Dodaj($3);
+    $$ = $1;
+}
+| broj      {
+    $$ = new Skup();
+    $$->Dodaj($1);
+}
+;
+
+broj : BROJ_T       {
+    $$ = $1;
+}
+| SIZE_T '(' izraz ')'      {
+    $$ = $3->Size();
+    delete $3;
+}
+;
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatika" << std::endl;
+    } else {
+        std::cout << "Neispravna gramatika" << std::endl;
+    }
+
+    exit(EXIT_SUCCESS);
+}

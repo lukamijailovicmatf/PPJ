@@ -1,0 +1,9 @@
+stack<int> _x := {1, 2, 3};
+queue<int> _y := {2, 4, 6};
+stack<int> _z;
+_z := _x;
+_z := _y;
+print_stack(_x);
+print_queue(_y);
+print_queue(_x);
+queue<int> _x := {5, 5, 5};

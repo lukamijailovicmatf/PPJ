@@ -1,0 +1,21 @@
+def x;
+print(x);
+def y = <1, -2.4>;
+print(y);
+def x = <5>;
+delete x;
+print(x);
+def x = y;
+print(x);
+
+def z = <5>;
+x = (y + 3*z)/5 + (y*z - <0.5, -3.5>*2)/<1, 2>;
+def w = -x*~x;
+print(w);
+
+def t = <|w|, arg(w)>;
+print(|t|);
+t = |t|*t + t/arg(t);
+
+t*w+z == y*3 + w/4;
+t != z*arg(z) + t/|t|;

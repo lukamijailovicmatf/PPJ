@@ -1,0 +1,172 @@
+%code requires {
+    #include <vector>
+    #include <string>
+}
+
+%{
+    #include <iostream>
+    #include <map>
+    #include <vector>
+
+    #include "Formula.hpp"
+    
+    void yyerror(std::string s) {
+        std::cerr << s << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    extern int yylex();
+
+    std::map<std::string, Formula*> promenljive;
+    std::map<std::string, std::vector<int>*> liste;
+%}
+
+// unija
+%union {
+    Formula *formula_tip;
+    std::vector<int> *lista_tip;
+    std::string *ime;
+    std::string *ime_liste;
+    int vrednost;
+}
+
+// token
+%token I
+%token ILI
+%token IMPL
+%token EQV
+%token NOT
+%token <ime> ID
+%token DODELA
+%token TRUE_TOKEN
+%token FALSE_TOKEN
+%token UNDEF_TOKEN
+%token <ime_liste> L_ID
+%token <vrednost> BROJ
+%token HEAD
+%token TAIL
+
+// asocijativnost
+%left I
+%left ILI
+%left IMPL
+%left EQV
+%right NOT
+
+// type
+%type <formula_tip> izraz
+%type <lista_tip> lista
+%type <lista_tip> lista_izraz
+%type <lista_tip> nabrajanje
+
+%%
+
+program : program naredba '\n'  {}
+| naredba '\n'  {}
+;
+
+naredba : izraz {
+    std::cout << $1->ispisi() << std::endl;
+}
+| ID DODELA izraz   {
+    auto it = promenljive.find(*$1);
+    if (it != promenljive.end())
+        delete it->second;
+    promenljive[*$1] = $3;
+}
+| L_ID DODELA lista_izraz   {
+    auto it = liste.find(*$1);
+    if (it != liste.end())
+        delete it->second;
+    liste[*$1] = $3;
+}
+;
+
+izraz : izraz I izraz   {
+    $$ = new Formula($1->konjukcija(*$1, *$3));
+}
+| izraz EQV izraz   {
+    $$ = new Formula($1->ekvivalencija(*$1, *$3));
+}
+| izraz IMPL izraz  {
+    $$ = new Formula($1->implikacija(*$1, *$3));
+}
+| izraz ILI izraz   {
+    $$ = new Formula($1->disjunkcija(*$1, *$3));
+}
+| NOT izraz     {
+    $$ = new Formula($2->negacija());
+}
+| '(' izraz ')'     {
+    $$ = $2;
+}
+| ID    {
+    auto it = promenljive.find(*$1);
+    if (it == promenljive.end()) {
+        $$ = new Formula(-1);
+    } else {
+        $$ = new Formula((it->second)->getValue());
+    }
+
+}
+| TRUE_TOKEN    {
+    $$ = new Formula(1);
+}
+| FALSE_TOKEN   {
+    $$ = new Formula(0);
+}
+| UNDEF_TOKEN   {
+    $$ = new Formula(-1);
+}
+| L_ID '[' BROJ ']' {
+    if (liste.find(*$1) == liste.end())
+        yyerror("Lista ne postoji");
+    int tmp = (*liste[*$1])[$3];
+    $$ = new Formula(tmp);
+}
+| HEAD '(' lista ')'    {
+    if ($3->empty())
+        yyerror("Lista je prazna");
+    $$ = new Formula((*$3)[0]);
+}
+;
+
+lista : L_ID    {
+    if (liste.find(*$1) == liste.end())
+        yyerror("Lista ne postoji");
+    $$ = new std::vector<int>(*liste[*$1]);
+}
+| TAIL '(' lista ')'    {
+    if ($3->empty())
+        yyerror("Lista je prazna");
+    $$ = new std::vector<int>($3->begin() + 1, $3->end());
+}
+;
+
+lista_izraz : '[' nabrajanje ']'    {
+    $$ = $2;
+}
+;
+
+nabrajanje : nabrajanje ',' izraz   {
+    $$ = $1;
+    $$->push_back($3->getValue());
+}
+| izraz {
+    $$ = new std::vector<int>();
+    $$->push_back($1->getValue());
+}
+;
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatika" << std::endl;
+    } else {
+        std::cout << "Neispravna sintaksa" << std::endl;
+    }
+
+    exit(EXIT_SUCCESS);
+}

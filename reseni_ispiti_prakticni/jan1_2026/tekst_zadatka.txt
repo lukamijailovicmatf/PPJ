@@ -1,0 +1,49 @@
+Napisati interaktivni parser za izmisljeni programski jezik koji podrzava rad sa listama. Jezik je strogo tipiziran
+tj. ako se ime neke promenljive navodi prvi put potrebno je da se pre naziva same promenljive navede i tip te
+promenljive, a zatim se ta promenljiva moze kasnije koristiti u programu. 
+
+1. Lista je struktura podataka kojoj se dimenzija dinamicki menja ubacivanjem novih elemenata. Jezik podrzava i
+   jednolinijske komentare koji pocinju karakterima dve kose crte, kao jednoliniski komentari u jeziku C.
+   Takodje jezik ima i promenljive koje pocinju malim slovom i koje takodje u svom nazivu mogu sadrzati i cifru
+   ili jos drugih slova. Svaka naredba jezika se zavrsava karakterom tacka-zarez tj. ;
+   U nastavku je dat test primer jednog pseudokoda koji ovaj jezik podrzava:
+   
+   List l1 = [];				// kreira se prazna lista []
+   List l2 = [1, 2, 3, 4];		// kreira se lista sa elementima [1, 2, 3, 4]
+   List l3 = [1, 2, 3];         // kreira se lista sa elementima [1, 2, 3]
+   l1 = [2, 3]					// lista sa elementima [2, 3]
+
+2. Jezik takodje podrzava i ispisivanje niski, a takodje i ispisivanje liste koja se prosledjuje kao argument
+   funkciji ispisa. U nastavku je dat test primer jednog pseudokoda koji ovaj jezik podrzava:
+   
+   print("ovo je neka niska");			// stampa se: ovo je neka niska
+   print(l2);							// stampa se: [1, 2, 3, 4]
+   print([4, 100, 6]);					// stampa se: [4, 100, 6]
+   print([]);							// stampa se: []
+   
+3. Jezik podrzava i rad sa operatorima + i *. Operatori rade sledece stvari: + uzme i odradi konkatenaciju dve
+   liste ili konkatenaciju liste i jednog elementa. Na primer [1, 2, 3] + [4, 5] daje rezultujucu listu koja
+   je rezultat spajanja prethodne dve tj. [1, 2, 3, 4, 5] ili na primer [1, 2, 3] + 4 dobijamo rezultujucu
+   listu koja je oblika [1, 2, 3, 4]; * uzme i odradi spajanje date liste onoliko puta koliko smo je pomnozili
+   odredjenim brojem. na primer [1, 2, 3] * 2 daje rezultujucu listu koja je rezultat spajanja date liste
+   sa samom sobom jos onoliko puta koliki je argument u operaciji mnozenja [1, 2, 3, 1, 2, 3] 
+   ili na primer [4, 100, 6] * 3 nam daje rezultujucu listu koja je rezultat spajanja date liste sa samom
+   sobom koliko puta smo je ponozili tj. [4, 100, 6, 4, 100, 6, 4, 100, 6].
+   
+   List l4 = l3 * 3;					// kreira se lista l4 = [1, 2, 3, 1, 2, 3, 1, 2, 3]
+   print("spajanje:");					// spajanje:
+   print([1, 2] + [3, 4]);				// [1, 2, 3, 4]
+   print([1, 2] * 2);					// ispisuje se lista [1, 2, 1, 2]
+   print(l1 * 2);						// ispisuje se lista [2, 3, 2, 3]
+   
+4. Jezik takodje podrzava i metodu append koja se moze pozvati nad objektom koji je tipa List i ona ima zadatak
+   da prosledjeni argument doda na kraj tekuce liste.
+   
+   List l5 = [1, 2, 3];					// kreira se lista l5 = [1, 2, 3]
+   l5.append(4);						// trenutna lista l5 = [1, 2, 3, 4]
+   
+
+Na ispitu koji sam imao pre nekoliko dana iz predmeta Prevodjenje programskih jezika ima sam za pocetak ovakav
+zadatak nakon cega su sledila jos 3 dela kojima se jezik dopunjavao sa jos nekim akcijama i stvarima. Zelim da
+pokusam da odradim rok ili barem deo roka od pre nekoliko dana i da mi ti u tome takodje pomognes. Hajde onda
+da sistematicno radimo deo po deo zadatka i da probamo da ga odradimo celog, moze?

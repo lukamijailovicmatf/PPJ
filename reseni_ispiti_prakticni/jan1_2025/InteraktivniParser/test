@@ -1,0 +1,18 @@
+p /\ q <=> r
+!p => q \/ r <=> s
+p /\ (q <=> !s)
+
+p := True
+q := False
+
+p := True
+q := False
+r := p <=> q
+p /\ q <=> r <=> True			
+!p => q \/ r <=> s				
+
+p := True	
+q := False
+p /\ q \/ s						
+p \/ s \/ q						
+!(q => s)

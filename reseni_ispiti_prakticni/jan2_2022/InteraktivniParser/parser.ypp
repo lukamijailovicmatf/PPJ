@@ -1,0 +1,201 @@
+%{
+    #include <iostream>
+    #include <string>
+    #include <cstdlib>
+    #include <map>
+    #include <cmath>
+    #include <algorithm>
+
+    #include "Razlomak.hpp"
+
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::map<std::string, Razlomak> promenljive;
+
+%}
+
+%union {
+    int vrednost;
+    std::string *ime;
+    bool b;
+    Razlomak *r;
+}
+
+%token RAZLOMAK_T
+%token <ime> ID_T
+%token <vrednost> BROJ_T
+%token STAMPAJ_T
+%token PROVERI_T
+
+%nonassoc '<' '>' LE_T GE_T EQ_T NEQ_T
+%left '+' '-'
+%left '*' '/'
+%right UNARNI_OPERATOR
+%right '^'
+
+%type <r> izraz
+%type <r> primarni_izraz
+%type <b> logicki_izraz
+
+%%
+
+program: program naredba        {}
+| naredba       {}
+;
+
+naredba: RAZLOMAK_T ID_T ';'        {
+    promenljive[*$2] = Razlomak(0, 1);
+    delete $2;
+}   
+| RAZLOMAK_T ID_T '=' izraz ';'     {
+    promenljive[*$2] = *$4;
+    delete $2;
+    delete $4;
+}
+| STAMPAJ_T lista_izraza ';'        {
+    std::cout << std::endl;
+}
+| PROVERI_T logicki_izraz ';'       {
+    if ($2) {
+        std::cout << "True" << std::endl;
+    } else {
+        std::cout << "False" << std::endl;
+    }
+}
+| izraz ';'     {
+    $1->stampaj();
+    delete $1;
+}
+;
+
+logicki_izraz: izraz '<' izraz      {
+    $$ = (*$1 < *$3);
+    delete $1;
+    delete $3;
+}
+| izraz '>' izraz       {
+    $$ = (*$1 > *$3);
+    delete $1;
+    delete $3;
+}
+| izraz LE_T izraz      {
+    $$ = (*$1 <= *$3);
+    delete $1;
+    delete $3;
+}
+| izraz GE_T izraz      {
+    $$ = (*$1 >= *$3);
+    delete $1;
+    delete $3;
+}
+| izraz EQ_T izraz      {
+    $$ = (*$1 == *$3);
+    delete $1;
+    delete $3;
+}
+| izraz NEQ_T izraz     {
+    $$ = (*$1 != *$3);
+    delete $1;
+    delete $3;
+}
+;
+
+lista_izraza: lista_izraza primarni_izraz   {
+    $2->stampaj();
+    std::cout << " ";
+    delete $2;
+}
+| primarni_izraz    {
+    $1->stampaj();
+    std::cout << " ";
+    delete $1;
+}
+;
+
+primarni_izraz: ID_T        {
+    auto it = promenljive.find(*$1);
+    if (it == promenljive.end())
+        yyerror("Promenljiva " + *$1 + " nije definisana!");
+    $$ = new Razlomak(promenljive[*$1]);
+    delete $1;
+}
+| BROJ_T        {
+    $$ = new Razlomak($1, 1);
+}
+| '[' BROJ_T ',' BROJ_T ']'     {
+    try {
+        $$ = new Razlomak($2, $4);
+    } catch (const std::exception& e) {
+        yyerror(e.what());
+    }
+}
+| '(' izraz ')'     {
+    $$ = $2;
+}
+;
+
+izraz: primarni_izraz   {
+    $$ = $1;
+}
+| izraz '+' izraz       {
+    $$ = new Razlomak(*$1 + *$3);
+    delete $1;
+    delete $3;
+}
+| izraz '-' izraz       {
+    $$ = new Razlomak(*$1 - *$3);
+    delete $1;
+    delete $3;
+}
+| izraz '*' izraz       {
+    $$ = new Razlomak(*$1 * *$3);
+    delete $1;
+    delete $3;
+}
+| izraz '/' izraz       {
+    try {
+        $$ = new Razlomak(*$1 / *$3);
+        delete $1;
+        delete $3;
+    } catch (const std::exception& e) {
+        delete $1;
+        delete $3;
+        yyerror(e.what());
+    }
+}
+| izraz '^' BROJ_T      {
+    $$ = new Razlomak($1->stepen($3));
+    delete $1;
+}
+| '-' izraz %prec UNARNI_OPERATOR       {
+    $$ = new Razlomak(-(*$2));
+    delete $2;
+}
+| '~' izraz %prec UNARNI_OPERATOR       {
+    try {
+        $$ = new Razlomak($2->reciprocan());
+        delete $2;
+    } catch (const std::exception& e) {
+        delete $2;
+        yyerror(e.what());
+    }
+}
+;
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatika" << std::endl;
+    } else {
+        std::cout << "Neispravna gramatika" << std::endl;
+    }
+
+    return 0;
+}

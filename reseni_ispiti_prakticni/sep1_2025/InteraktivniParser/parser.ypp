@@ -1,0 +1,148 @@
+%{
+    #include <iostream>    
+    #include <cstdlib>    
+    #include <string>
+    #include <vector>
+    #include <map>
+    #include <algorithm>
+
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }    
+
+    std::map<std::string, std::vector<int>> tabela_simbola;
+
+    void ispisi(const std::vector<int>& v) {
+        std::cout << "[";
+        for (size_t i = 0; i < v.size(); i++) {
+            std::cout << v[i];
+            if (i != v.size() - 1)
+                std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+    }
+%}
+
+%union {
+    int broj;
+    std::string *ime;
+    std::vector<int> *vektor;
+}
+
+%token <ime> ID_T
+%token IZLAZ_T
+%token ISPISI_T
+%token <broj> BROJ_T
+%token REVERSE_T
+%token SORT_T
+
+%left '+'
+%left '*'
+%left REVERSE_T SORT_T '['
+
+%type <vektor> izraz
+%type <vektor> konstantni_vektor
+%type <vektor> lista_elemenata
+
+%%
+
+program: program naredba '\n'   {}
+| naredba '\n'  {}
+;
+
+naredba: ID_T '=' izraz     {
+    tabela_simbola[*$1] = *$3;
+    delete $1;
+    delete $3;
+}
+| IZLAZ_T ISPISI_T izraz    {
+    ispisi(*$3);
+    delete $3;
+}
+;
+
+izraz: ID_T     {
+    if (tabela_simbola.find(*$1) == tabela_simbola.end())
+        yyerror("Vektor " + *$1 + " nije definisan!");
+    $$ = new std::vector<int>(tabela_simbola[*$1]);
+
+}
+| konstantni_vektor     {
+    $$ = $1;
+}
+| izraz '+' izraz   {
+    $$ = $1;
+    $$->insert($$->end(), $3->begin(), $3->end());
+    delete $3;
+}
+| izraz '*' izraz   {
+    if ($1->size() != $3->size())
+        yyerror("Pogresne dimenzije!");
+    $$ = new std::vector<int>();
+    for (size_t i = 0; i < $1->size(); i++) {
+        $$->push_back((*$1)[i] * (*$3)[i]);
+    }
+    delete $1;
+    delete $3;
+}
+| izraz REVERSE_T   {
+    $$ = $1;
+    std::reverse($$->begin(), $$->end());
+}
+| izraz SORT_T      {
+    $$ = $1;
+    std::sort($$->begin(), $$->end());
+}
+| izraz '[' BROJ_T ':' BROJ_T ']'       {
+    $$ = new std::vector<int>();
+    int pocetak = $3;
+    int kraj = $5;
+    if (pocetak >= 0 && kraj <= (int)$1->size() && pocetak < kraj) {
+        for (int i = pocetak; i < kraj; i++) {
+            $$->push_back((*$1)[i]);
+        }
+    }
+    delete $1;
+}
+| izraz '[' BROJ_T ':' BROJ_T ':' BROJ_T ']'    {
+    $$ = new std::vector<int>();
+    int pocetak = $3;
+    int kraj = $5;
+    int korak = $7;
+    for (int i = pocetak; i < kraj && i < (int)$1->size(); i += korak) {
+        $$->push_back((*$1)[i]);
+    }
+    delete $1;
+}
+;
+
+konstantni_vektor: '[' lista_elemenata ']'  {
+    $$ = $2;
+}
+;
+
+lista_elemenata: lista_elemenata ',' BROJ_T     {
+    $1->push_back($3);
+    $$ = $1;
+}
+| BROJ_T    {
+    $$ = new std::vector<int>();
+    $$->push_back($1);
+}
+;
+
+%%
+
+int main() {
+
+    if (yyparse() == 0) {
+        std::cout << "Ispravna gramatika" << std::endl;
+    } else {
+        std::cout << "Neispravna gramatika" << std::endl;
+    }
+
+    return 0;
+}

@@ -1,0 +1,16 @@
+u = [1, 0, -3, 2]
+out << u
+out << [-1, 0]
+out << v
+v = u + [3, -1, 0]
+out << v
+w = u * [1, 2, -1, -2]
+out << w
+z = v * u
+out << u.reverse()
+y = v.sort().reverse()
+out << y
+out << u[0:2]
+x = v[1:6:2]
+out << x + w[3:4]
+	
