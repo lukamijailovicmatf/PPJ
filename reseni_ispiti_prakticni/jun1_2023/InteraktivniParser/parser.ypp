@@ -1,0 +1,45 @@
+%{
+    #include <iostream>    
+    #include <cstdlib>
+
+    extern int yylex();
+
+    void yyerror(const std::string& poruka) {
+        std::cerr << poruka << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+
+%}
+
+%token STEK_T
+%token RED_T
+%token DODELA_T
+%token ID_T
+%token STAMPAJ_STEK_T
+%token STAMPAJ_RED_T
+%token BROJ_T
+
+%%
+
+program: program naredba ';'
+| naredba ';'
+;
+
+naredba: STEK_T ID_T DODELA_T inicijalizacija
+| RED_T ID_T DODELA_T inicijalizacija
+| STEK_T ID_T
+| STAMPAJ_STEK_T '(' ID_T ')'
+| STAMPAJ_RED_T '(' ID_T ')'
+|ID_T DODELA_T ID_T
+;
+
+inicijalizacija: '{' lista_elemenata '}'
+;
+
+lista_elemenata: lista_elemenata ',' BROJ_T
+| BROJ_T
+;
+
+%%
+

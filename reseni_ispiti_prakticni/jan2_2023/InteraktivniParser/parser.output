@@ -1,0 +1,1265 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: program naredba
+    2        | naredba
+
+    3 naredba: LIST_T '<' tip_podataka '>' ID_T ';'
+    4        | LIST_T '<' tip_podataka '>' ID_T '=' izraz ';'
+    5        | ID_T '=' izraz ';'
+    6        | izraz ';'
+
+    7 tip_podataka: NUMBER_TYPE_T
+    8             | STRING_TYPE_T
+
+    9 izraz: ID_T
+   10      | '{' lista_elemenata '}'
+   11      | izraz '+' izraz
+   12      | izraz '-' izraz
+   13      | izraz '*' izraz
+   14      | '-' izraz
+   15      | izraz '<' izraz
+   16      | izraz '>' izraz
+   17      | izraz LEQ_T izraz
+   18      | izraz GEQ_T izraz
+   19      | izraz EQ_T izraz
+   20      | izraz NEQ_T izraz
+   21      | '(' izraz ')'
+   22      | izraz '.' PRINT_T '(' ')'
+   23      | izraz '.' PRINT_R_T '(' ')'
+   24      | izraz '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz '.' POP_BACK_T '(' ')'
+   28      | izraz '.' POP_FRONT_T '(' ')'
+   29      | izraz '.' POP_T '(' BROJ_T ')'
+   30      | izraz '.' FIND_T '(' vrednost ')'
+   31      | izraz '.' GET_T '(' BROJ_T ')'
+
+   32 lista_elemenata: lista_elemenata ',' BROJ_T
+   33                | lista_elemenata ',' STRING_T
+   34                | BROJ_T
+   35                | STRING_T
+
+   36 vrednost: BROJ_T
+   37         | STRING_T
+   38         | ID_T
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 21 22 23 24 25 26 27 28 29 30 31
+    ')' (41) 21 22 23 24 25 26 27 28 29 30 31
+    '*' (42) 13
+    '+' (43) 11
+    ',' (44) 26 32 33
+    '-' (45) 12 14
+    '.' (46) 22 23 24 25 26 27 28 29 30 31
+    ';' (59) 3 4 5 6
+    '<' (60) 3 4 15
+    '=' (61) 4 5
+    '>' (62) 3 4 16
+    '{' (123) 10
+    '}' (125) 10
+    error (256)
+    LIST_T (258) 3 4
+    ID_T <niska> (259) 3 4 5 9 38
+    PRINT_T (260) 22
+    PRINT_R_T (261) 23
+    NUMBER_TYPE_T (262) 7
+    STRING_TYPE_T (263) 8
+    BROJ_T <niska> (264) 26 29 31 32 34 36
+    STRING_T <niska> (265) 33 35 37
+    PUSH_BACK_T (266) 24
+    PUSH_FRONT_T (267) 25
+    PUSH_T (268) 26
+    POP_BACK_T (269) 27
+    POP_FRONT_T (270) 28
+    POP_T (271) 29
+    FIND_T (272) 30
+    GET_T (273) 31
+    LEQ_T (274) 17
+    GEQ_T (275) 18
+    EQ_T (276) 19
+    NEQ_T (277) 20
+    UMINUS (278)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (37)
+        on left: 0
+    program (38)
+        on left: 1 2
+        on right: 0 1
+    naredba (39)
+        on left: 3 4 5 6
+        on right: 1 2
+    tip_podataka <tip> (40)
+        on left: 7 8
+        on right: 3 4
+    izraz <lista> (41)
+        on left: 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+        on right: 4 5 6 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+    lista_elemenata <lista_elemenata> (42)
+        on left: 32 33 34 35
+        on right: 10 32 33
+    vrednost <niska> (43)
+        on left: 36 37 38
+        on right: 24 25 26 30
+
+
+State 0
+
+    0 $accept: • program $end
+
+    LIST_T  shift, and go to state 1
+    ID_T    shift, and go to state 2
+    '-'     shift, and go to state 3
+    '{'     shift, and go to state 4
+    '('     shift, and go to state 5
+
+    program  go to state 6
+    naredba  go to state 7
+    izraz    go to state 8
+
+
+State 1
+
+    3 naredba: LIST_T • '<' tip_podataka '>' ID_T ';'
+    4        | LIST_T • '<' tip_podataka '>' ID_T '=' izraz ';'
+
+    '<'  shift, and go to state 9
+
+
+State 2
+
+    5 naredba: ID_T • '=' izraz ';'
+    9 izraz: ID_T •
+
+    '='  shift, and go to state 10
+
+    $default  reduce using rule 9 (izraz)
+
+
+State 3
+
+   14 izraz: '-' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 12
+
+
+State 4
+
+   10 izraz: '{' • lista_elemenata '}'
+
+    BROJ_T    shift, and go to state 13
+    STRING_T  shift, and go to state 14
+
+    lista_elemenata  go to state 15
+
+
+State 5
+
+   21 izraz: '(' • izraz ')'
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 16
+
+
+State 6
+
+    0 $accept: program • $end
+    1 program: program • naredba
+
+    $end    shift, and go to state 17
+    LIST_T  shift, and go to state 1
+    ID_T    shift, and go to state 2
+    '-'     shift, and go to state 3
+    '{'     shift, and go to state 4
+    '('     shift, and go to state 5
+
+    naredba  go to state 18
+    izraz    go to state 8
+
+
+State 7
+
+    2 program: naredba •
+
+    $default  reduce using rule 2 (program)
+
+
+State 8
+
+    6 naredba: izraz • ';'
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '<'    shift, and go to state 19
+    '>'    shift, and go to state 20
+    LEQ_T  shift, and go to state 21
+    GEQ_T  shift, and go to state 22
+    EQ_T   shift, and go to state 23
+    NEQ_T  shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '*'    shift, and go to state 27
+    '.'    shift, and go to state 28
+    ';'    shift, and go to state 29
+
+
+State 9
+
+    3 naredba: LIST_T '<' • tip_podataka '>' ID_T ';'
+    4        | LIST_T '<' • tip_podataka '>' ID_T '=' izraz ';'
+
+    NUMBER_TYPE_T  shift, and go to state 30
+    STRING_TYPE_T  shift, and go to state 31
+
+    tip_podataka  go to state 32
+
+
+State 10
+
+    5 naredba: ID_T '=' • izraz ';'
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 33
+
+
+State 11
+
+    9 izraz: ID_T •
+
+    $default  reduce using rule 9 (izraz)
+
+
+State 12
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   14      | '-' izraz •
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 14 (izraz)
+
+
+State 13
+
+   34 lista_elemenata: BROJ_T •
+
+    $default  reduce using rule 34 (lista_elemenata)
+
+
+State 14
+
+   35 lista_elemenata: STRING_T •
+
+    $default  reduce using rule 35 (lista_elemenata)
+
+
+State 15
+
+   10 izraz: '{' lista_elemenata • '}'
+   32 lista_elemenata: lista_elemenata • ',' BROJ_T
+   33                | lista_elemenata • ',' STRING_T
+
+    '}'  shift, and go to state 34
+    ','  shift, and go to state 35
+
+
+State 16
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   21      | '(' izraz • ')'
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '<'    shift, and go to state 19
+    '>'    shift, and go to state 20
+    LEQ_T  shift, and go to state 21
+    GEQ_T  shift, and go to state 22
+    EQ_T   shift, and go to state 23
+    NEQ_T  shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '*'    shift, and go to state 27
+    '.'    shift, and go to state 28
+    ')'    shift, and go to state 36
+
+
+State 17
+
+    0 $accept: program $end •
+
+    $default  accept
+
+
+State 18
+
+    1 program: program naredba •
+
+    $default  reduce using rule 1 (program)
+
+
+State 19
+
+   15 izraz: izraz '<' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 37
+
+
+State 20
+
+   16 izraz: izraz '>' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 38
+
+
+State 21
+
+   17 izraz: izraz LEQ_T • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 39
+
+
+State 22
+
+   18 izraz: izraz GEQ_T • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 40
+
+
+State 23
+
+   19 izraz: izraz EQ_T • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 41
+
+
+State 24
+
+   20 izraz: izraz NEQ_T • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 42
+
+
+State 25
+
+   11 izraz: izraz '+' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 43
+
+
+State 26
+
+   12 izraz: izraz '-' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 44
+
+
+State 27
+
+   13 izraz: izraz '*' • izraz
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 45
+
+
+State 28
+
+   22 izraz: izraz '.' • PRINT_T '(' ')'
+   23      | izraz '.' • PRINT_R_T '(' ')'
+   24      | izraz '.' • PUSH_BACK_T '(' vrednost ')'
+   25      | izraz '.' • PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz '.' • PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz '.' • POP_BACK_T '(' ')'
+   28      | izraz '.' • POP_FRONT_T '(' ')'
+   29      | izraz '.' • POP_T '(' BROJ_T ')'
+   30      | izraz '.' • FIND_T '(' vrednost ')'
+   31      | izraz '.' • GET_T '(' BROJ_T ')'
+
+    PRINT_T       shift, and go to state 46
+    PRINT_R_T     shift, and go to state 47
+    PUSH_BACK_T   shift, and go to state 48
+    PUSH_FRONT_T  shift, and go to state 49
+    PUSH_T        shift, and go to state 50
+    POP_BACK_T    shift, and go to state 51
+    POP_FRONT_T   shift, and go to state 52
+    POP_T         shift, and go to state 53
+    FIND_T        shift, and go to state 54
+    GET_T         shift, and go to state 55
+
+
+State 29
+
+    6 naredba: izraz ';' •
+
+    $default  reduce using rule 6 (naredba)
+
+
+State 30
+
+    7 tip_podataka: NUMBER_TYPE_T •
+
+    $default  reduce using rule 7 (tip_podataka)
+
+
+State 31
+
+    8 tip_podataka: STRING_TYPE_T •
+
+    $default  reduce using rule 8 (tip_podataka)
+
+
+State 32
+
+    3 naredba: LIST_T '<' tip_podataka • '>' ID_T ';'
+    4        | LIST_T '<' tip_podataka • '>' ID_T '=' izraz ';'
+
+    '>'  shift, and go to state 56
+
+
+State 33
+
+    5 naredba: ID_T '=' izraz • ';'
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '<'    shift, and go to state 19
+    '>'    shift, and go to state 20
+    LEQ_T  shift, and go to state 21
+    GEQ_T  shift, and go to state 22
+    EQ_T   shift, and go to state 23
+    NEQ_T  shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '*'    shift, and go to state 27
+    '.'    shift, and go to state 28
+    ';'    shift, and go to state 57
+
+
+State 34
+
+   10 izraz: '{' lista_elemenata '}' •
+
+    $default  reduce using rule 10 (izraz)
+
+
+State 35
+
+   32 lista_elemenata: lista_elemenata ',' • BROJ_T
+   33                | lista_elemenata ',' • STRING_T
+
+    BROJ_T    shift, and go to state 58
+    STRING_T  shift, and go to state 59
+
+
+State 36
+
+   21 izraz: '(' izraz ')' •
+
+    $default  reduce using rule 21 (izraz)
+
+
+State 37
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   15      | izraz '<' izraz •
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 15 (izraz)
+
+
+State 38
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   16      | izraz '>' izraz •
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 16 (izraz)
+
+
+State 39
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   17      | izraz LEQ_T izraz •
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 17 (izraz)
+
+
+State 40
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   18      | izraz GEQ_T izraz •
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 18 (izraz)
+
+
+State 41
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   19      | izraz EQ_T izraz •
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 19 (izraz)
+
+
+State 42
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   20      | izraz NEQ_T izraz •
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '+'  shift, and go to state 25
+    '-'  shift, and go to state 26
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 20 (izraz)
+
+
+State 43
+
+   11 izraz: izraz • '+' izraz
+   11      | izraz '+' izraz •
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 11 (izraz)
+
+
+State 44
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   12      | izraz '-' izraz •
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '*'  shift, and go to state 27
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 12 (izraz)
+
+
+State 45
+
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   13      | izraz '*' izraz •
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '.'  shift, and go to state 28
+
+    $default  reduce using rule 13 (izraz)
+
+
+State 46
+
+   22 izraz: izraz '.' PRINT_T • '(' ')'
+
+    '('  shift, and go to state 60
+
+
+State 47
+
+   23 izraz: izraz '.' PRINT_R_T • '(' ')'
+
+    '('  shift, and go to state 61
+
+
+State 48
+
+   24 izraz: izraz '.' PUSH_BACK_T • '(' vrednost ')'
+
+    '('  shift, and go to state 62
+
+
+State 49
+
+   25 izraz: izraz '.' PUSH_FRONT_T • '(' vrednost ')'
+
+    '('  shift, and go to state 63
+
+
+State 50
+
+   26 izraz: izraz '.' PUSH_T • '(' vrednost ',' BROJ_T ')'
+
+    '('  shift, and go to state 64
+
+
+State 51
+
+   27 izraz: izraz '.' POP_BACK_T • '(' ')'
+
+    '('  shift, and go to state 65
+
+
+State 52
+
+   28 izraz: izraz '.' POP_FRONT_T • '(' ')'
+
+    '('  shift, and go to state 66
+
+
+State 53
+
+   29 izraz: izraz '.' POP_T • '(' BROJ_T ')'
+
+    '('  shift, and go to state 67
+
+
+State 54
+
+   30 izraz: izraz '.' FIND_T • '(' vrednost ')'
+
+    '('  shift, and go to state 68
+
+
+State 55
+
+   31 izraz: izraz '.' GET_T • '(' BROJ_T ')'
+
+    '('  shift, and go to state 69
+
+
+State 56
+
+    3 naredba: LIST_T '<' tip_podataka '>' • ID_T ';'
+    4        | LIST_T '<' tip_podataka '>' • ID_T '=' izraz ';'
+
+    ID_T  shift, and go to state 70
+
+
+State 57
+
+    5 naredba: ID_T '=' izraz ';' •
+
+    $default  reduce using rule 5 (naredba)
+
+
+State 58
+
+   32 lista_elemenata: lista_elemenata ',' BROJ_T •
+
+    $default  reduce using rule 32 (lista_elemenata)
+
+
+State 59
+
+   33 lista_elemenata: lista_elemenata ',' STRING_T •
+
+    $default  reduce using rule 33 (lista_elemenata)
+
+
+State 60
+
+   22 izraz: izraz '.' PRINT_T '(' • ')'
+
+    ')'  shift, and go to state 71
+
+
+State 61
+
+   23 izraz: izraz '.' PRINT_R_T '(' • ')'
+
+    ')'  shift, and go to state 72
+
+
+State 62
+
+   24 izraz: izraz '.' PUSH_BACK_T '(' • vrednost ')'
+
+    ID_T      shift, and go to state 73
+    BROJ_T    shift, and go to state 74
+    STRING_T  shift, and go to state 75
+
+    vrednost  go to state 76
+
+
+State 63
+
+   25 izraz: izraz '.' PUSH_FRONT_T '(' • vrednost ')'
+
+    ID_T      shift, and go to state 73
+    BROJ_T    shift, and go to state 74
+    STRING_T  shift, and go to state 75
+
+    vrednost  go to state 77
+
+
+State 64
+
+   26 izraz: izraz '.' PUSH_T '(' • vrednost ',' BROJ_T ')'
+
+    ID_T      shift, and go to state 73
+    BROJ_T    shift, and go to state 74
+    STRING_T  shift, and go to state 75
+
+    vrednost  go to state 78
+
+
+State 65
+
+   27 izraz: izraz '.' POP_BACK_T '(' • ')'
+
+    ')'  shift, and go to state 79
+
+
+State 66
+
+   28 izraz: izraz '.' POP_FRONT_T '(' • ')'
+
+    ')'  shift, and go to state 80
+
+
+State 67
+
+   29 izraz: izraz '.' POP_T '(' • BROJ_T ')'
+
+    BROJ_T  shift, and go to state 81
+
+
+State 68
+
+   30 izraz: izraz '.' FIND_T '(' • vrednost ')'
+
+    ID_T      shift, and go to state 73
+    BROJ_T    shift, and go to state 74
+    STRING_T  shift, and go to state 75
+
+    vrednost  go to state 82
+
+
+State 69
+
+   31 izraz: izraz '.' GET_T '(' • BROJ_T ')'
+
+    BROJ_T  shift, and go to state 83
+
+
+State 70
+
+    3 naredba: LIST_T '<' tip_podataka '>' ID_T • ';'
+    4        | LIST_T '<' tip_podataka '>' ID_T • '=' izraz ';'
+
+    ';'  shift, and go to state 84
+    '='  shift, and go to state 85
+
+
+State 71
+
+   22 izraz: izraz '.' PRINT_T '(' ')' •
+
+    $default  reduce using rule 22 (izraz)
+
+
+State 72
+
+   23 izraz: izraz '.' PRINT_R_T '(' ')' •
+
+    $default  reduce using rule 23 (izraz)
+
+
+State 73
+
+   38 vrednost: ID_T •
+
+    $default  reduce using rule 38 (vrednost)
+
+
+State 74
+
+   36 vrednost: BROJ_T •
+
+    $default  reduce using rule 36 (vrednost)
+
+
+State 75
+
+   37 vrednost: STRING_T •
+
+    $default  reduce using rule 37 (vrednost)
+
+
+State 76
+
+   24 izraz: izraz '.' PUSH_BACK_T '(' vrednost • ')'
+
+    ')'  shift, and go to state 86
+
+
+State 77
+
+   25 izraz: izraz '.' PUSH_FRONT_T '(' vrednost • ')'
+
+    ')'  shift, and go to state 87
+
+
+State 78
+
+   26 izraz: izraz '.' PUSH_T '(' vrednost • ',' BROJ_T ')'
+
+    ','  shift, and go to state 88
+
+
+State 79
+
+   27 izraz: izraz '.' POP_BACK_T '(' ')' •
+
+    $default  reduce using rule 27 (izraz)
+
+
+State 80
+
+   28 izraz: izraz '.' POP_FRONT_T '(' ')' •
+
+    $default  reduce using rule 28 (izraz)
+
+
+State 81
+
+   29 izraz: izraz '.' POP_T '(' BROJ_T • ')'
+
+    ')'  shift, and go to state 89
+
+
+State 82
+
+   30 izraz: izraz '.' FIND_T '(' vrednost • ')'
+
+    ')'  shift, and go to state 90
+
+
+State 83
+
+   31 izraz: izraz '.' GET_T '(' BROJ_T • ')'
+
+    ')'  shift, and go to state 91
+
+
+State 84
+
+    3 naredba: LIST_T '<' tip_podataka '>' ID_T ';' •
+
+    $default  reduce using rule 3 (naredba)
+
+
+State 85
+
+    4 naredba: LIST_T '<' tip_podataka '>' ID_T '=' • izraz ';'
+
+    ID_T  shift, and go to state 11
+    '-'   shift, and go to state 3
+    '{'   shift, and go to state 4
+    '('   shift, and go to state 5
+
+    izraz  go to state 92
+
+
+State 86
+
+   24 izraz: izraz '.' PUSH_BACK_T '(' vrednost ')' •
+
+    $default  reduce using rule 24 (izraz)
+
+
+State 87
+
+   25 izraz: izraz '.' PUSH_FRONT_T '(' vrednost ')' •
+
+    $default  reduce using rule 25 (izraz)
+
+
+State 88
+
+   26 izraz: izraz '.' PUSH_T '(' vrednost ',' • BROJ_T ')'
+
+    BROJ_T  shift, and go to state 93
+
+
+State 89
+
+   29 izraz: izraz '.' POP_T '(' BROJ_T ')' •
+
+    $default  reduce using rule 29 (izraz)
+
+
+State 90
+
+   30 izraz: izraz '.' FIND_T '(' vrednost ')' •
+
+    $default  reduce using rule 30 (izraz)
+
+
+State 91
+
+   31 izraz: izraz '.' GET_T '(' BROJ_T ')' •
+
+    $default  reduce using rule 31 (izraz)
+
+
+State 92
+
+    4 naredba: LIST_T '<' tip_podataka '>' ID_T '=' izraz • ';'
+   11 izraz: izraz • '+' izraz
+   12      | izraz • '-' izraz
+   13      | izraz • '*' izraz
+   15      | izraz • '<' izraz
+   16      | izraz • '>' izraz
+   17      | izraz • LEQ_T izraz
+   18      | izraz • GEQ_T izraz
+   19      | izraz • EQ_T izraz
+   20      | izraz • NEQ_T izraz
+   22      | izraz • '.' PRINT_T '(' ')'
+   23      | izraz • '.' PRINT_R_T '(' ')'
+   24      | izraz • '.' PUSH_BACK_T '(' vrednost ')'
+   25      | izraz • '.' PUSH_FRONT_T '(' vrednost ')'
+   26      | izraz • '.' PUSH_T '(' vrednost ',' BROJ_T ')'
+   27      | izraz • '.' POP_BACK_T '(' ')'
+   28      | izraz • '.' POP_FRONT_T '(' ')'
+   29      | izraz • '.' POP_T '(' BROJ_T ')'
+   30      | izraz • '.' FIND_T '(' vrednost ')'
+   31      | izraz • '.' GET_T '(' BROJ_T ')'
+
+    '<'    shift, and go to state 19
+    '>'    shift, and go to state 20
+    LEQ_T  shift, and go to state 21
+    GEQ_T  shift, and go to state 22
+    EQ_T   shift, and go to state 23
+    NEQ_T  shift, and go to state 24
+    '+'    shift, and go to state 25
+    '-'    shift, and go to state 26
+    '*'    shift, and go to state 27
+    '.'    shift, and go to state 28
+    ';'    shift, and go to state 94
+
+
+State 93
+
+   26 izraz: izraz '.' PUSH_T '(' vrednost ',' BROJ_T • ')'
+
+    ')'  shift, and go to state 95
+
+
+State 94
+
+    4 naredba: LIST_T '<' tip_podataka '>' ID_T '=' izraz ';' •
+
+    $default  reduce using rule 4 (naredba)
+
+
+State 95
+
+   26 izraz: izraz '.' PUSH_T '(' vrednost ',' BROJ_T ')' •
+
+    $default  reduce using rule 26 (izraz)
