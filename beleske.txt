@@ -1,0 +1,452 @@
+cas1:
+
+LA: da prepozna lekseme u programu i da im dodeli tokene
+
+Primer:
+int x = 10;
+int - kljucna rec
+x - identifikator
+= - operator
+10 - literal
+; - separator
+
+Regularni izrazi su mehanizam koji nam omogucava da prepoznamo lekseme u nekom programu.
+Osnovni regularni izrazi:
+1) eps i a (a bilo koji karakter, eps je prazna rec)
+2) r1 i r2 regularni izrazi onda je i r1r2 regularni izraz  --->   nadovezivanje tj. konkatenacija
+3) r1 i r2 regukarni izrazi onda je r1|r2 regularni izraz
+4) r regularni izraz onda je i r* regularni izraz (nula ili vise pojavljivanja regularnog izraza r)
+
+Prosireni regularni izrazi - skraceni zapis osnovnih regularnih izraza koji se cesto koriste
+
+------------------------------------------------------------------------------------------------
+prosireni regularni izraz   |   opis
+------------------------------------------------------------------------------------------------
+[a1a2...an]                 |   a1|a2|...|an
+[a1-an]                     |   svi karakteri iz ASCII tabele od a1 do an ukljucujuci i a1 i an
+[^a1a2...an]                |   svi karakteri iz ASCII tabele osim a1,a2,...,an
+.                           |   svi karakteri osim novog reda   drugi zapis: [^\n]
+r+                          |   jedno ili vise ponavljanja regularnog izraza r
+r?                          |   nula ili jedan put regularni izraz r
+r{n}                        |   regularni izraz r tacno n puta
+r{n1n2}                     |   r se pojavljuje k puta gde je k pripada [n1,n2]
+r{n,}                       |   r se pojavljuje bar n puta
+\w                          |   [a-zA-Z_0-9]
+\W                          |   [^a-zA-Z_0-9]
+\d                          |   [0-9]
+\D                          |   [^0-9]
+\s                          |   [ \t\n]
+\S                          |   [^ \t\n]
+------------------------------------------------------------------------------------------------
+
+Primer regularnog izraza za identifikatore u C-u: [a-zA-Z_][a-zA-Z_0-9]*
+
+Specijalno znacenje za npr. + ili * vaze samo VAN KARAKTERSKE KLASE.
+
+Prioritet za *, ., |  ===>  * > . > |
+
+Gramsivost - poklopi najvise sto mozes karaktera
+
+Lenjo izracunavanje - ako je nasao prvo poklapanje ostalo se ne gleda (primer sa casa je bilo viselinijski komentari u C-u)
+
+Sidra - odredjuju poziciju prepoznavanja regularnog izraza u tekstu
+
+^abba - uzima samo abba koji se nalazi samo na pocetku teksta
+
+^ je sidro za pocetak teksta (pocetak linije ako se ukljuci multiline flag)
+
+$ je sidro za kraj teksta (kraj linije ako se ukljuci multiline flag)
+
+^abba$ - prepoznaje abba u tekstu ako je abba samo u liniji
+
+\babba - oznaci mi abba koje se nalazi na pocetku bilo koje reci
+
+Grupisanje teksta pomocu zagrada nam omogucava da zapamtimo sta smo procitali i da tom necemu pristupamo
+preko reference \k gde je k redni broj otvorene zagrade koja cuva zeljeni tekst.
+
+Primer: prepoznaj sve reci koje nisu samoglasnici
+[^aeiouAEIOU\W0-9_]
+
+****************************************************************************************************************************************
+
+cas2:
+
+Pretpostavka: r1, r2 regularni izrazi
+Preduvidi                                               Postuvid
+* pozitivni                                             * pozitivni
+    (?=r1)r2  prepoznaj sve r2                              (?<=r1)r2  prepoznaj sve r2
+              koji pocinju regularnim                                  ispred kojih se nalazi regularni
+              izrazom r1                                               izraz r1
+    r1(?=r2)  prepoznaj sve r1 iza                          r1(?<=r2)  prepoznaj sve r1 koji se zavrsavaju
+              kojih ide regularni izraz r2                             sa r2
+* negativni                                             * negativni
+    (?!r1)r2  prepoznaj sve r2                              (?<!r1)r2  prepoznaj sve r2
+              koji ne pocinju regularnim                               ispred kojih se ne nalazi regularni
+              izrazom r1                                               izraz r1
+    r1(?!r2)  prepoznaj sve r1 iza                          r1(?<!r2)  prepoznaj sve r1 koji se ne zavrsavaju
+              kojih ne ide r2                                          sa r2
+
+****************************************************************************************************************************************
+
+cas3:
+
+LA: lekseme -> token
+
+Za svaki regularni izraz moguce je definisati jednu strukturu koja se zove automat i na osnovu koje
+se odredjene reci poklapaju.
+
+Flex gleda prvo da poklopi najvece poklapanje sto moze, a ako je isto poklapanje ulazi u prvu
+akciju koja je navedena u pravilima za regex-e tj. on cita karakter po karakter, poklapa maksimalno
+koliko moze odgovarajuce zadatim regex-om ali ako se ipak desi da poklapanje bude jednake duzine
+za neka dva razlicita regex-a onda se u obzir uzima redolsed navedenoh regex-a u delu fajla gde se navode
+tj. pisu pravila tj. sami regex-i.
+
+yyin - odakle flex cita (podrazumevano stdin, osim ako ga mi eksplicitno ne promenimo)
+yyout - gde flex pise (podrazumevano stdout, osim ako ga mi eksplicitno ne promenimo)
+
+****************************************************************************************************************************************
+
+cas4:
+
+----------------
+Leksicka analiza
+----------------
+zadatak: prepoznati lekseme u programu i dodeliti im tokene
+mehanizam za prepoznavanje leksema: regularni izrazi
+konacni automat
+deo kompilatora koji radi leksicku analizu se zove lekser
+primer: int x = 10; --> int - kljucna rec
+                        x - identifikator
+                        = - operator
+                        10 - literal
+
+
+-------------------
+Sintaksicka analiza
+-------------------
+zadatak: provera da li su tokeni poredjani u skladu sa "nekim pravilima"
+mehanizam: konteksno-slobodne gramatike
+potisni automat
+deo kompilatora koji radi sintaksnu analizu se zove parser
+
+-----------------------------
+Konteksno-slobodne gramatike:
+-----------------------------
+G = (sigma, N, S, P)
+sigma - skup zavrsnih simbola (tokeni, terminali)
+N - skup nezavrsnih simbola (neterminali)
+S pripada N - aksioma
+P podskup N x (sigma unija N)* - pravila gramatike
+
+------------------------------------
+Primer konteksno-slobodne gramatike:
+------------------------------------
+sigma = {a}
+N = {A}
+S = A
+P = {A -> aA, A -> eps}
+Izvodjenje u gramatici: krenemo od aksiome i primenom pravila gramatike hocemo da dodjemo do terminala tj.
+hocemo da se oslobodimo neterminala. Niz terminala koji dobijemo zovemo RECENICA. 
+Primer jednog izvodjenja: A => aA => aaA => aa (aa je recenica koja pripada ovoj gramatici)
+Primer jednog izvodjenja: A => eps
+
+
+Odnos konteksno-slobonih gramatika i regularnih izraza: regularni izrazi su podskup skupa konteksno-slobonih gramatika
+
+
+Primer: (^n)^n ===> eps, (), (()), ...
+
+        sigma = {(, )}
+        N = {A}
+        S = A
+        P = {A -> (A), A -> eps}
+
+        Primer jednog izvodjenja: A => eps
+        Primer jednog izvodjenja: A => (A) => ((A)) => (())
+        
+        Pravila gramatike cemo najcesce pisati na sledeci nacin:
+        A -> (A)
+        A -> eps
+        ili na jos kraci tj. kompaktniji nacin
+        A -> (A)
+           | eps
+
+
+Primer: [4, 10, -1] --Leksicna analiza--> [broj, broj, broj]
+
+    Pravila gramatike koja opisuju liste u ovom slucaju:
+        LISTA -> [ NIZ_BROJEVA ]
+        NIZ_BROJEVA -> NIZ_BROJEVA , broj
+                     | broj 
+
+        Primer jednog izvodjenja: LISTA => [ NIZ_BROJEVA ] => [ NIZ_BROJEVA , broj ]
+                                        => [NIZ_BROJEVA , broj , broj ] => [ broj , broj , broj ]
+
+
+Primer: 1 + 2 + 3 --Leksicna analiza--> broj + broj + broj
+
+
+    (1) Pravila gramatike koja opisuju liste u ovom slucaju:
+        E -> E + E
+           | broj
+        
+        Primer jednog izvodjenja (*): E => E + E => E + E + E => broj + E + E => broj + broj + E => broj + broj + broj
+        Ovaj primer izvodjenja je primer NAJLEVLJEG IZVODJENJA.
+
+        Primer jednog izvodjenja (**): E => E + E => broj + E => broj + E + E => broj + broj + E => broj + broj + broj
+        Ovaj primer izvodjenja je primer NAJLEVLJEG IZVODJENJA.
+
+        Ovaj primer gramatike je viseznacan jer ima 2 razlicita najlevlja izvodjenja za istu recenicu!
+
+    (2) Pravila gramatike koja opisuju liste u ovom slucaju:
+
+        E -> broj + E   --->   (desno rekurzivno pravilo)
+           | broj
+        
+        Primer jednog izvodjenja: E => broj + E => broj + broj + E => broj + broj + broj
+        Ovaj primer izvodjenja je primer NAJDESNJEG IZVODJENJA.
+
+    (3) Pravila gramatike koja opisuju liste u ovom slucaju:
+        E -> E + broj   --->   (levo rekurzivno pravilo)
+           | broj
+        
+        Primer jednog izvodjenja: E => E + broj => E + broj + broj => broj + broj + broj
+        Ovaj primer izvodjenja je primer NAJLEVLJEG IZVODJENJA.
+
+Izvodjenje u gramatici <-> drvo izvodjenja
+
+Drvo izvodjenja za 1 + (2 + 3):
+
+                    E
+                  / | \
+              broj  +  E
+                     / | \
+                  broj +  E
+                          |
+                         broj
+
+
+Drvo izvodjenja za (1 + 2) + 3:
+
+                    E
+                  / | \
+                 E  +  broj
+               / | \
+              E  +  broj
+              |
+             broj
+
+
+Drvo izvodjenja za (*):
+
+                    E
+                  / | \
+                 E  +  E
+               / | \   |
+              E  +  E  broj
+              |     |
+             broj  broj
+
+
+Drvo izvodjenja za (**):
+
+                    E
+                  / | \
+                 E  +  E
+                 |   / | \
+               broj E  +  E
+                          |
+                         broj
+
+
+Primer: 1 + 2 * 3 --Leksicna analiza--> broj + broj * broj
+
+    Pravila gramatike koja opisuju izraze u ovom slucaju:
+    E -> E + broj
+       | E * broj
+       | broj
+
+    Primer jednog izvodjenja: E => E * broj => E + broj * broj => broj + broj * broj
+
+
+Drvo izvodjenja za (1 + 2) * 3:
+
+                    E
+                  / | \
+                 E  *  broj         Ali ovde je problem jer ovo drvo ne daje dobar prioritet operatora:
+               / | \                (1 + 2) * 3 umesto da prioritet bude 1 + (2 * 3), zbog toga uvodimo novi
+              E  +  broj            neterminal T kako bismo sredili prioritet operatora
+              |
+             broj
+
+    Pravila gramatike koja opisuju izraze i gde je asocijativnost tj. prioritet operatora dobar:
+    E -> E + T
+       | T
+    T -> T * broj
+       | broj
+
+    Pimer jednog izvodnjenja: E => E + T => T + T => broj + T => broj + T * broj => broj + broj * broj
+
+
+Drvo izvodjenja za 1 + (2 * 3):
+
+                     E
+                   / | \
+                 E   +   T
+                 |     / | \
+                 T    T  *  broj
+                 |    |      
+                broj  broj
+
+
+Primer: (1 + 2) * 3 + 5  --Leksicna analiza-->  (broj + broj) * broj + broj
+
+    Pravila gramatike koja opisuju izraze i gde je asocijativnost tj. prioritet operatora dobar:
+    E -> E + T
+       | T
+    T -> T * F         Prioritet: () > * > +
+       | F
+    F -> (E)
+       | broj
+
+    Primer jednog izvodjenja: E => E + T => T + T => T * F + T => F * F + T => (E) * F + T
+                                                  (3)                   (2)
+                                => (E + T) * F + T => (broj + T) * F + T => (broj + broj) * F + T
+                                                           (2)
+                                => (broj + broj) * broj + T => (broj + broj) * broj + broj
+
+
+Primer:
+    List l1 = [1, 2, 10];
+    List l2;
+    l2 = [4, 7, -3];
+
+    Pravila gramatike koja opisuju liste:
+    NAREDBA -> list id = [ NIZ_BROJEVA ] ;
+             | list id ;
+             | id = [ NIZ_BROJEVA ] ;
+    NIZ_BROJEVA -> eps
+                 | NIZ_BROJEVA'
+    NIZ_BROJEVA' -> NIZ_BROJEVA' , broj
+                  | broj
+    PROGRAM -> NIZ_NAREDBI
+    NIZ_NAREDBI -> NIZ_NAREDBI NAREDBA
+                 | NAREDBA
+
+
+Primer:
+    p /\ q \/ r => s <=> t
+
+    Prioritet operatora: negacija > konjukcija (/\) > disjunkcija (\/) > implikacija (=>), ekvivalencija (<=>)
+    Svi operatori imaju LEVU ASOCIJATIVNOST.
+    
+    Pravila gramatike koja opsiuje rad sa logickim izrazima:
+    A -> A <=> B
+       | B
+    B -> B => C
+       | C
+    C -> C \/ D
+       | D
+    D -> D /\ E
+       | E
+    E -> negacija E
+       | id
+
+
+------------------------
+Transformacije gramatika
+------------------------
+
+1) eliminacija neposredne leve rekurzije i levo faktorisanih pravila
+
+    Leva rekurzija: E -> E + ...
+    Leva faktorisanost: A -> a alfa, alfa pripada (sigma unija N)*
+                           | a beta, beta pripada (sigma unija N)*
+
+    Gramatika sa levom faktorisanoscu:
+    A -> aB
+       | aC
+    B -> ab
+       | bb
+    
+    Prethodna gramatika koja je oslobodjena leve faktorisanosti:
+    A -> aD
+    D -> B
+       | C
+    B -> ab
+    C -> bb
+
+    Gramatika sa levom rekurzijom:
+    A -> Ax   --->   y, yx, yxx, yxxx, ... yx*
+       | y
+
+    Prethodna gramatika koja je oslobodjena od neposredne leve rekurzije:
+    A -> yA'
+    A' -> xA'
+        | eps
+
+
+    Gramatika sa levom rekurzijom:
+    A -> Ax1
+       | Ax2
+       | Ax3
+       | ...
+       | Axn
+       | y1
+       | y2
+       | ...
+       | ym
+
+    Prethodna gramatika koja je oslobodjena od neposredne leve rekurzije:
+    A -> y1A'
+       | y2A'
+       | ...
+       |ymA'
+    A' -> x1A'
+        | x2A'
+        | ...
+        | xnA'
+        | eps
+
+2) uklanjanje neproduktivnih simbola
+
+    P = {A iz N | A =>* alfa, alfa pripada sigma*}
+    P - skup produktivnih simbola
+
+    A -> BAa | b | D
+    B -> BC | C
+    C -> CC
+    D -> aA
+
+    Skup neterminala koji u najvise jednom koraku proizvode recenicu
+    P1 = {A}
+
+    Skup neterminala koji u najvise dva koraku proizvode recenicu
+    P2 = {A, D}
+
+    Skup neterminala koji u najvise tri koraka proizvode recenicu
+    P3 = {A, D}
+
+    Kada dobijemo da su nam dva susedna skupa ista tu stajemo sa postupkom.
+    Posto u skupu P3 nema B i C neterminala onda njihova pravila i sva pravila gde se oni javljaju i sa leve
+    strane izbacujemo to.
+
+3) uklanjanje nedostiznih simbola
+
+    D = {A iz N | S =>* alfa A beta, alfa pripada (sigma unija N)* i beta pripada (sigma unija N)*}
+
+    A -> aB | C
+    B -> bB | a
+    C -> d
+    D -> aA | b
+
+    Skup neterminala koji su dostizni u tacno 0 koraka
+    D0 = {A}
+
+    Skup neterminala koji su dostizni u tacno 1 koraku
+    D1 = {A, B, C}
+
+    Skup neterminala koji su dostizni u tacno 2 koraka
+    D1 = {A, B, C}
+
+    Prvo se vrsi uklanjanje neproduktivnih, pa tek onda nedostiznih!
